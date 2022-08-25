@@ -7,7 +7,6 @@ const props = defineProps({
     filterOptions: Function,
     selectedValue: String,
     notFoundMessage: String,
-    showValue: Boolean,
     modelValue: String
 });
 </script>

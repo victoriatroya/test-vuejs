@@ -9,7 +9,6 @@ const dataObj = reactive({
     dataList: null,
     visible: false,
     notFoundMessage: "No items were found.",
-    showValue: false,
 });
 
 const toggleDropdown = () => {
