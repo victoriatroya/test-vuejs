@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, ref } from "vue";
+import {reactive, onMounted, ref} from "vue";
 import SelectInput from "./components/SelectInput.vue";
 
 const searchValue = ref("");
@@ -9,6 +9,7 @@ const dataObj = reactive({
     dataList: null,
     visible: false,
     notFoundMessage: "No items were found.",
+    showValue: false,
 });
 
 const toggleDropdown = () => {
@@ -17,18 +18,25 @@ const toggleDropdown = () => {
 
 const optionSelected = (option) => {
     dataObj.selectedValue = option;
+    searchValue.value = ''
 };
 
-const filterOptions = (searchValue) => {
-    return searchValue
-        ? dataObj.dataList.fruits.filter((option) =>
-              option.toLowerCase().includes(searchValue.toLowerCase())
-          )
-        : dataObj.dataList.fruits;
+const filterOptions = () => {
+    if (!searchValue) {
+        return dataObj.dataList.fruits;
+    }
+    return dataObj.dataList.fruits.filter((option) =>
+        option.toLowerCase().includes(searchValue.value.toLowerCase()))
 };
+
+const cleanSearch = () => {
+    if (!searchValue.value) {
+        dataObj.selectedValue = null
+    }
+}
 
 onMounted(async () => {
-    const { data } = await fetch("http://127.0.0.1:8888/api/fruits").then(
+    const {data} = await fetch("http://127.0.0.1:8888/api/fruits").then(
         (data) => data.json()
     );
     dataObj.dataList = data;
@@ -38,7 +46,7 @@ onMounted(async () => {
 <template>
     <div v-if="dataObj.dataList">
         <SelectInput
-            :input-value="searchValue"
+            v-model="searchValue"
             :data-list="dataObj.dataList"
             :toggle-dropdown="toggleDropdown"
             :option-selected="optionSelected"
@@ -46,6 +54,8 @@ onMounted(async () => {
             :filter-options="filterOptions"
             :selected-value="dataObj.selectedValue"
             :not-found-message="dataObj.notFoundMessage"
+            :show-value="dataObj.showValue"
+            @remove="cleanSearch"
         />
     </div>
 </template>

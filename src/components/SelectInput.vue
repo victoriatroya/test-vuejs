@@ -1,8 +1,4 @@
 <script setup>
-import { ref } from "vue";
-
-const searchValue = ref("");
-
 const props = defineProps({
     dataList: Object,
     toggleDropdown: Function,
@@ -11,6 +7,8 @@ const props = defineProps({
     filterOptions: Function,
     selectedValue: String,
     notFoundMessage: String,
+    showValue: Boolean,
+    modelValue: String
 });
 </script>
 
@@ -24,14 +22,16 @@ const props = defineProps({
             @click="toggleDropdown"
         >
             <div class="label">
+                <span v-if="selectedValue">{{ selectedValue }}</span>
                 <input
-                    v-model="searchValue"
+                    :value="modelValue"
+                    @input="$emit('update:modelValue', $event.target.value)"
                     type="text"
-                    :placeholder="[
-                        visible
+                    :placeholder="[!selectedValue ? (visible 
                             ? 'This is a search input'
-                            : dataList.description,
+                            : dataList.description) : ''
                     ]"
+                    @keyup.delete="$emit('remove')"
                 />
             </div>
             <div>
@@ -51,15 +51,15 @@ const props = defineProps({
             <div :class="[!visible ? 'hidden' : 'visible']">
                 <ul>
                     <li
-                        v-for="option in filterOptions(searchValue)"
+                        v-for="option in filterOptions()"
                         @click="optionSelected(option)"
                     >
                         {{ option }}
                     </li>
                     <span
-                        v-if="filterOptions(searchValue).length === 0"
+                        v-if="filterOptions().length === 0"
                         class="message"
-                        >{{ notFoundMessage }}
+                    >{{ notFoundMessage }}
                     </span>
                 </ul>
             </div>
@@ -96,7 +96,7 @@ const props = defineProps({
         }
 
         .label {
-            display: block;
+            display: flex;
             padding: 12px;
             font-size: 16px;
             color: #888;
@@ -105,6 +105,7 @@ const props = defineProps({
                 font-size: 16px;
                 outline: none;
                 border: 0;
+                width: 100%;
             }
 
             input::placeholder {
